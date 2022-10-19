@@ -13,6 +13,7 @@
 #include <imgui_internal.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_win32.h>
+#include <imgui_input_text.h>
 #include <windows.h>
 
 #include <glad/glad.h>
@@ -24,6 +25,10 @@
 #include "misc.h"
 
 #include "winbase.h"
+
+#define VAL(X) ((const char*)&X)
+#define PTR(X) ((const char*)X)
+
 
 MainFrame::MainFrame(ContextGl *context_):
 context(context_),
@@ -654,6 +659,45 @@ void MainFrame::Menu(unsigned int errorPopupId)
 				}
 				ImGui::EndMenu();
 			}
+			if (ImGui::BeginMenu("Create Jonbins"))
+			{
+				if (framedata.m_loaded)
+				{
+					ImGui::Text("Requirements");
+					ImGui::InputText("Output Path", &outputPath);
+					ImGui::InputText("Character ID for pat", &charID);
+					ImGui::Spacing();
+					ImGui::Text("Note: A CG file must be loaded for this to work");
+					ImGui::Separator();
+
+					ImGui::Text("Optionals");
+					ImGui::InputFloat("Scale Jonbins", &jonbScaleFactor);
+					ImGui::InputFloat("X Offset for hip", &hipOffsetX);
+					ImGui::InputFloat("Y Offset for hip", &hipOffsetY);
+					ImGui::Text("Offsets are made using a hip's canvas. \nUse Geo's ArcSysAIOCLITool for getting hips.");
+					ImGui::Separator();
+
+					if (ImGui::Button("Create", ImVec2(80, 0)))
+					{
+						if (!outputPath.empty() && !charID.empty() && cg.m_loaded)
+						{
+							hasFailed = false;
+							BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath);
+						}
+						else {
+							hasFailed = true;
+						}
+					}
+					if (hasFailed)
+					{
+						ImGui::Text("Please fill out the requirements and have a CG file loaded.");
+					}
+				}
+				else {
+					ImGui::Text("Load some data first.");
+				}
+				ImGui::EndMenu();
+			}
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Help"))
@@ -662,8 +706,104 @@ void MainFrame::Menu(unsigned int errorPopupId)
 			if (ImGui::MenuItem("Shortcuts")) helpWindow.isVisible = !helpWindow.isVisible;
 			ImGui::EndMenu();
 		}
+		/*
+		if (ImGui::BeginMenu("Pat Editing"))
+		{
+			if (ImGui::MenuItem("Switch Editing Type"))
+			{
+				if (mainPane.isEditingPat)
+				{
+					mainPane.isEditingPat = false;
+				}
+				else {
+					mainPane.isEditingPat = true;
+				}
+			}
+			ImGui::Separator();
+			ImGui::EndMenu();
+		}
+		*/
 		ImGui::EndMenuBar();
 	}
+}
+
+void MainFrame::BuildJonb(float offsetX, float offsetY, std::string id, float scale, std::string output)
+{
+	while (i1 < 1000)
+	{
+		if (i2 == 100)
+		{
+			i2 = -1;
+			i1++;
+		}
+		else {
+			name.clear();
+			name = output + "Action_";
+			if (i1 < 10)
+			{
+				name += "00" + std::to_string(i1);
+			}
+			else if (i1 < 100)
+			{
+				name += "0" + std::to_string(i1);
+			}
+			else {
+				name += std::to_string(i1);
+			}
+
+			if (i2 < 10)
+			{
+				name += "_0" + std::to_string(i2);
+			}
+			else {
+				name += "_" + std::to_string(i2);
+			}
+
+			name += ".jonbin";
+
+			auto seq = framedata.get_sequence(i1);
+			if (seq)
+			{
+				int nframes = seq->frames.size() - 1;
+
+				if (nframes >= 0 && i2 <= nframes)
+				{
+					std::ofstream file(name, std::ios_base::out | std::ios_base::binary);
+
+					file.write("JONB", 4);
+
+					int zero = 0;
+
+					int nlayers = seq->frames.back().AF.layers.size();
+					int i = 0;
+
+					uint16_t usedLayers = 0;
+					while (i <= nlayers)
+					{
+						int l = seq->frames.back().AF.layers;
+						if (l > -1)
+						{
+							usedLayers++;
+						}
+						i++;
+					}
+					file.write(VAL(usedLayers), 2);
+
+
+
+					file.close();
+				}
+				else {
+					i1++;
+					i2 = -1;
+				}
+			}
+
+		}
+		i2++;
+	}
+	i1 = 0;
+	i2 = 0;
 }
 
 void MainFrame::WarmStyle()
