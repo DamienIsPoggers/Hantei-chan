@@ -28,11 +28,6 @@ public:
 	void LoadSettings();
 
 	bool drawImgui = true;
-
-	std::string id;
-
-
-	FrameData framedata;
 	
 
 private:
@@ -44,6 +39,7 @@ private:
 	
 
 	Render render;
+	FrameData framedata;
 	FrameState currState{};
 	CG cg;
 	Parts parts;
@@ -81,23 +77,6 @@ private:
 	BoxPane boxPane;
 	AboutWindow aboutWindow;
 	HelpWindow helpWindow;
-
-	//jonbin stuff
-
-	std::string outputPath;
-	std::string charID;
-	float jonbScaleFactor = 1.0;
-	bool hasFailed = false;
-	float hipOffsetX = 0.0;
-	float hipOffsetY = 0.0;
-
-	void BuildJonb(float offsetX, float offsetY, std::string id, float scale, std::string output);
-
-	std::string name;
-	int i1 = 0;
-	int i2 = 0;
-
-
 };
 
 
