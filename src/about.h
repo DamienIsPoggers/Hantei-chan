@@ -28,7 +28,7 @@ public:
 			ImGui::Spacing();
 			ImGui::Text("Special thanks to:\nEiton for the effect rendering code\nu4ick and Rhekar for advice and reporting bugs.");
 			ImGui::Spacing();
-			ImGui::Text("Arcsys Jonbin Builder interface made by DamienIsPoggers\nConverter by nan");
+			ImGui::Text("Arcsys Jonbin Builder made by DamienIsPoggers");
 			ImGui::Separator();
 			ImGui::Text("\nApplication average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::End();

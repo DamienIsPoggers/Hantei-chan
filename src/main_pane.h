@@ -10,6 +10,9 @@
 class MainPane : DrawWindow
 {
 public:
+
+	bool isEditingPat = false;
+
 	MainPane(Render* render, FrameData *frameData, FrameState &fs);
 	void Draw();
 

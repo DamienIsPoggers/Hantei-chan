@@ -26,8 +26,6 @@
 
 #include "winbase.h"
 
-#define VAL(X) ((const char*)&X)
-#define PTR(X) ((const char*)X)
 
 
 MainFrame::MainFrame(ContextGl *context_):
@@ -672,17 +670,42 @@ void MainFrame::Menu(unsigned int errorPopupId)
 
 					ImGui::Text("Optionals");
 					ImGui::InputFloat("Scale Jonbins", &jonbScaleFactor);
+					ImGui::InputText("Prefix for sprite names", &prefix);
 					ImGui::InputFloat("X Offset for hip", &hipOffsetX);
 					ImGui::InputFloat("Y Offset for hip", &hipOffsetY);
 					ImGui::Text("Offsets are made using a hip's canvas. \nUse Geo's ArcSysAIOCLITool for getting hips.");
 					ImGui::Separator();
 
-					if (ImGui::Button("Create", ImVec2(80, 0)))
+					if (ImGui::Button("Create Full HA6", ImVec2(140, 0)))
 					{
 						if (!outputPath.empty() && !charID.empty() && cg.m_loaded)
 						{
 							hasFailed = false;
-							BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath);
+							framedata.BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, false);
+						}
+						else {
+							hasFailed = true;
+						}
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Create Current Pattern", ImVec2(140, 0)))
+					{
+						if (!outputPath.empty() && !charID.empty() && cg.m_loaded)
+						{
+							hasFailed = false;
+							framedata.BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, false);
+						}
+						else {
+							hasFailed = true;
+						}
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Create Current Frame", ImVec2(140, 0)))
+					{
+						if (!outputPath.empty() && !charID.empty() && cg.m_loaded)
+						{
+							hasFailed = false;
+							framedata.BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, false);
 						}
 						else {
 							hasFailed = true;
@@ -725,85 +748,6 @@ void MainFrame::Menu(unsigned int errorPopupId)
 		*/
 		ImGui::EndMenuBar();
 	}
-}
-
-void MainFrame::BuildJonb(float offsetX, float offsetY, std::string id, float scale, std::string output)
-{
-	while (i1 < 1000)
-	{
-		if (i2 == 100)
-		{
-			i2 = -1;
-			i1++;
-		}
-		else {
-			name.clear();
-			name = output + "Action_";
-			if (i1 < 10)
-			{
-				name += "00" + std::to_string(i1);
-			}
-			else if (i1 < 100)
-			{
-				name += "0" + std::to_string(i1);
-			}
-			else {
-				name += std::to_string(i1);
-			}
-
-			if (i2 < 10)
-			{
-				name += "_0" + std::to_string(i2);
-			}
-			else {
-				name += "_" + std::to_string(i2);
-			}
-
-			name += ".jonbin";
-
-			auto seq = framedata.get_sequence(i1);
-			if (seq)
-			{
-				int nframes = seq->frames.size() - 1;
-
-				if (nframes >= 0 && i2 <= nframes)
-				{
-					std::ofstream file(name, std::ios_base::out | std::ios_base::binary);
-
-					file.write("JONB", 4);
-
-					int zero = 0;
-
-					int nlayers = seq->frames.back().AF.layers.size();
-					int i = 0;
-
-					uint16_t usedLayers = 0;
-					while (i <= nlayers)
-					{
-						int l = seq->frames.back().AF.layers;
-						if (l > -1)
-						{
-							usedLayers++;
-						}
-						i++;
-					}
-					file.write(VAL(usedLayers), 2);
-
-
-
-					file.close();
-				}
-				else {
-					i1++;
-					i2 = -1;
-				}
-			}
-
-		}
-		i2++;
-	}
-	i1 = 0;
-	i2 = 0;
 }
 
 void MainFrame::WarmStyle()

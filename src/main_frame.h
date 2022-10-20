@@ -90,12 +90,8 @@ private:
 	bool hasFailed = false;
 	float hipOffsetX = 0.0;
 	float hipOffsetY = 0.0;
-
-	void BuildJonb(float offsetX, float offsetY, std::string id, float scale, std::string output);
-
-	std::string name;
-	int i1 = 0;
-	int i2 = 0;
+	std::string prefix;
+	
 
 
 };

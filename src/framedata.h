@@ -218,6 +218,7 @@ struct Sequence_T {
 	int level = 0;
 	int flag = 0;
 
+
 	//new
 	int pups = 0;
 
@@ -251,6 +252,11 @@ class FrameData {
 private:
 	unsigned int m_nsequences;
 
+	//jonbin stuff
+	std::string name;
+	int i1 = 0;
+	int i2 = 0;
+
 public:
 	bool m_loaded;
 	std::vector<Sequence_T<>> m_sequences;
@@ -267,6 +273,10 @@ public:
 
 	FrameData();
 	~FrameData();
+
+	void BuildJonb(float offsetX, float offsetY, std::string id, float scale, std::string output, std::string prefix, bool justPat, bool justFra);
+
+
 };
 
 void WriteSequence(std::ofstream &file, const Sequence_T<> *seq);
