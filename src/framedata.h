@@ -5,8 +5,12 @@
 #include <vector>
 
 #include "hitbox.h"
+#include "cg.h"
 
 #include <set>
+#include <fstream>
+#include <cstdint>
+
 extern std::set<int> numberSet;
 extern int maxCount;
 
@@ -256,6 +260,7 @@ private:
 	std::string name;
 	int i1 = 0;
 	int i2 = 0;
+
 
 public:
 	bool m_loaded;

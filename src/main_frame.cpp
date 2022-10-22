@@ -667,10 +667,10 @@ void MainFrame::Menu(unsigned int errorPopupId)
 					ImGui::Spacing();
 					ImGui::Text("Note: A CG file must be loaded for this to work");
 					ImGui::Separator();
-
+					//ImGui::Text(cg.get_filename(135));
 					ImGui::Text("Optionals");
 					ImGui::InputFloat("Scale Jonbins", &jonbScaleFactor);
-					ImGui::InputText("Prefix for sprite names", &prefix);
+					//ImGui::InputText("Prefix for sprite names", &prefix);
 					ImGui::InputFloat("X Offset for hip", &hipOffsetX);
 					ImGui::InputFloat("Y Offset for hip", &hipOffsetY);
 					ImGui::Text("Offsets are made using a hip's canvas. \nUse Geo's ArcSysAIOCLITool for getting hips.");
@@ -678,7 +678,7 @@ void MainFrame::Menu(unsigned int errorPopupId)
 
 					if (ImGui::Button("Create Full HA6", ImVec2(140, 0)))
 					{
-						if (!outputPath.empty() && !charID.empty() && cg.m_loaded)
+						if (!outputPath.empty() && !charID.empty())
 						{
 							hasFailed = false;
 							framedata.BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, false);
@@ -690,7 +690,7 @@ void MainFrame::Menu(unsigned int errorPopupId)
 					ImGui::SameLine();
 					if (ImGui::Button("Create Current Pattern", ImVec2(140, 0)))
 					{
-						if (!outputPath.empty() && !charID.empty() && cg.m_loaded)
+						if (!outputPath.empty() && !charID.empty())
 						{
 							hasFailed = false;
 							framedata.BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, false);
@@ -702,7 +702,7 @@ void MainFrame::Menu(unsigned int errorPopupId)
 					ImGui::SameLine();
 					if (ImGui::Button("Create Current Frame", ImVec2(140, 0)))
 					{
-						if (!outputPath.empty() && !charID.empty() && cg.m_loaded)
+						if (!outputPath.empty() && !charID.empty())
 						{
 							hasFailed = false;
 							framedata.BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, false);

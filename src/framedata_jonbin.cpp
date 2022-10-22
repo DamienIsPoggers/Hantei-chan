@@ -1,20 +1,27 @@
 #include "framedata.h"
 #include "cg.h"
 #include "main_frame.h"
+#include "filedialog.h"
 #include <fstream>
 #include <cstdint>
 
 #define VAL(X) ((const char*)&X)
 #define PTR(X) ((const char*)X)
 
-void buildHeader(std::ofstream& file, const Sequence* seq, const int fraNum, std::string id, std::string prefix);
 void buildImages(std::ofstream& file, const Frame* frame, std::string id, std::string prefix);
 int imageCount(const Frame_AF* af);
 void imageName(std::ofstream& file, const Frame_AF* af, const int layerNum, std::string id, std::string prefix);
+void buildHeader(std::ofstream& file, const Sequence* seq, const int fraNum, std::string id, std::string prefix);
 
+CG cg;
 
 void FrameData::BuildJonb(float offsetX, float offsetY, std::string id, float scale, std::string output, std::string prefix, bool justPat, bool justFra)
 {
+	std::string&& file = FileDialog(fileType::CG);
+	if (!file.empty())
+	{
+		cg.load(file.c_str());
+	}
 	while (i1 < 1000)
 	{
 		if (i2 == 100)
@@ -117,29 +124,21 @@ int imageCount(const Frame_AF *af)
 	return layers;
 }
 
-void imageName(std::ofstream& file, const Frame_AF* af, const int layerNum, std::string id, std::string prefix)
+void imageName(std::ofstream& file, const Frame_AF* af, int layerNum, std::string id, std::string prefix)
 {
 	const auto& l = af->layers[layerNum];
-	int sprId = l.spriteId;
-	CG cg;
+	char buf[32]{};
+	std::string sprName;
 	if (l.usePat)
 	{
-		std::string sprName = "vr_";
+		sprName += "vr_";
 		sprName += id;
 		sprName += "_ef000.bmp";
-		char buf[32]{};
-		strncpy(buf, sprName.c_str(), 32);
-		file.write(PTR(buf), 32);
 	}
 	else {
-		/*
-		const char* filename = cg.get_filename(sprId);
-		
-		std::string sprName = prefix;
-		//sprName.append(filename);
-		//char buf[32]{};
-		//strncpy(buf, sprName.c_str(), 32);
-		file.write(PTR(filename), 32);
-		*/
+		sprName += prefix;
+		//sprName.push_back(cg.get_filename(l.spriteId));
 	}
+	strncpy(buf, sprName.c_str(), 32);
+	file.write(PTR(buf), 32);
 }
