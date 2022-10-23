@@ -40,6 +40,34 @@ const char* CG::get_filename(unsigned int n) {
 	return image->filename;
 }
 
+int CG::get_width(int n)
+{
+	if (!m_loaded) {
+		return 0;
+	}
+
+	const CG_Image* image = get_image(n);
+	if (!image) {
+		return 0;
+	}
+
+	return image->width;
+}
+
+int CG::get_height(int n)
+{
+	if (!m_loaded) {
+		return 0;
+	}
+
+	const CG_Image* image = get_image(n);
+	if (!image) {
+		return 0;
+	}
+
+	return image->height;
+}
+
 int CG::get_image_count() {
 	return m_nimages;
 }

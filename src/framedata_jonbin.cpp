@@ -65,6 +65,8 @@ void MainFrame::BuildJonb(float offsetX, float offsetY, std::string id, float sc
 
 					buildHeader(file, framedata.get_sequence(i1), i2, id, prefix);
 
+					buildChunks(file, framedata.get_sequence(i1));
+
 
 					file.close();
 				}
@@ -172,7 +174,7 @@ void MainFrame::buildHeader(std::ofstream& file, const Sequence *seq, const int 
 	}
 	file.write(VAL(snapCount5), 2);
 
-	for (int j = 0; j < 3; j++)
+	for (int j = 0; j < 7; j++)
 	{
 		file.write(VAL(zero), 8);
 	}
@@ -212,5 +214,68 @@ void MainFrame::buildImages(std::ofstream& file, const Frame* frame, std::string
 			}
 			file.write(buf, 32);
 		}
+	}
+}
+
+void MainFrame::buildChunks(std::ofstream& file, const Sequence* seq)
+{
+	const auto& l = seq->frames[i2].AF.layers;
+	uint64_t zero = 0;
+	int t = 3;
+	int unknown = 1065353216;
+	for (int i = 0; i < imageNum; i++)
+	{
+		if (l[i].usePat)
+		{
+			float num = l[i].spriteId;
+			file.write(VAL(num), 4);
+			file.write(VAL(num), 4);
+			file.write(VAL(num), 4);
+			file.write(VAL(num), 4);
+			file.write(VAL(zero), 8);
+			file.write(VAL(zero), 8);
+			if (imageNum > 1 && i == 0)
+			{
+				file.write(VAL(t), 4);
+			}
+			else {
+				file.write(VAL(zero), 4);
+			}
+			file.write(VAL(zero), 4);
+			file.write(VAL(unknown), 4);
+			file.write(VAL(zero), 8);
+			file.write(VAL(zero), 8);
+			file.write(VAL(zero), 8);
+			file.write(VAL(zero), 8);
+			file.write(VAL(zero), 4);
+		}
+		else if (l[i].spriteId > -1)
+		{
+			file.write(VAL(hipOffsetX), 4);
+			file.write(VAL(hipOffsetY), 4);
+			float width = cg.get_width(i2);
+			float height = cg.get_height(i2);
+			file.write(VAL(width), 4);
+			file.write(VAL(height), 4);
+			float offsetX = ((128 + (l[i].offset_x * l[i].scale[0]) *(-1))) *jonbScaleFactor;
+			float offsetY = (224 + (l[i].offset_x * l[i].scale[0])) * jonbScaleFactor;
+			file.write(VAL(offsetX), 4);
+			file.write(VAL(offsetY), 4);
+			width = ((width * (-1)) * l[i].scale[0])*jonbScaleFactor;
+			height = (height * l[i].scale[0]) * jonbScaleFactor;
+			file.write(VAL(width), 4);
+			file.write(VAL(height), 4);
+			file.write(VAL(zero), 8);
+			file.write(VAL(unknown), 4);
+			file.write(VAL(zero), 8);
+			file.write(VAL(zero), 8);
+			file.write(VAL(zero), 8);
+			file.write(VAL(zero), 8);
+			file.write(VAL(zero), 4);
+		}
+		else {
+			imageNum++;
+		}
+		i++;
 	}
 }

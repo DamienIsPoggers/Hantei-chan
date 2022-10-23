@@ -38,6 +38,7 @@ add_executable(${EXE} WIN32
 	src/parts.cpp
 	src/clock.cpp
 	src/image_write.cpp
+	src/framedata_jonbin.cpp
 	res/res.rc
 )
 

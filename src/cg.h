@@ -86,6 +86,9 @@ public:
 	int getPalNumber();
 	int getColorFromPal(unsigned char location);
 
+	int get_width(int n);
+	int get_height(int n);
+
 	void			free();
 
 	const char* get_filename(unsigned int n);
