@@ -96,6 +96,15 @@ private:
 	std::string name;
 	int i1 = 0;
 	int i2 = 0;
+	uint16_t imageNum = 0;
+	uint16_t hurtboxCount = 0;
+	uint16_t hitboxCount = 0;
+	uint16_t snapCount1 = 0;
+	uint16_t snapCount2 = 0;
+	uint16_t snapCount3 = 0;
+	uint16_t snapCount4 = 0;
+	uint16_t snapCount5 = 0;
+	bool specToSnap = false;
 
 	void buildImages(std::ofstream& file, const Frame* frame, std::string id, std::string prefix);
 	void buildHeader(std::ofstream& file, const Sequence* seq, const int fraNum, std::string id, std::string prefix);

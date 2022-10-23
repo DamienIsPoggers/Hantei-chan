@@ -667,10 +667,11 @@ void MainFrame::Menu(unsigned int errorPopupId)
 					ImGui::Spacing();
 					ImGui::Text("Note: A CG file must be loaded for this to work");
 					ImGui::Separator();
-					ImGui::Text(cg.get_filename(135));
+					
 					ImGui::Text("Optionals");
 					ImGui::InputFloat("Scale Jonbins", &jonbScaleFactor);
 					//ImGui::InputText("Prefix for sprite names", &prefix);
+					ImGui::Checkbox("Convert Special boxes to Snap boxes", &specToSnap);
 					ImGui::InputFloat("X Offset for hip", &hipOffsetX);
 					ImGui::InputFloat("Y Offset for hip", &hipOffsetY);
 					ImGui::Text("Offsets are made using a hip's canvas. \nUse Geo's ArcSysAIOCLITool for getting hips.");
