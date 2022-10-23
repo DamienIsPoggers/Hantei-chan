@@ -256,11 +256,6 @@ class FrameData {
 private:
 	unsigned int m_nsequences;
 
-	//jonbin stuff
-	std::string name;
-	int i1 = 0;
-	int i2 = 0;
-
 
 public:
 	bool m_loaded;
@@ -279,7 +274,6 @@ public:
 	FrameData();
 	~FrameData();
 
-	void BuildJonb(float offsetX, float offsetY, std::string id, float scale, std::string output, std::string prefix, bool justPat, bool justFra);
 
 
 };

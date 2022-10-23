@@ -33,6 +33,8 @@ public:
 
 
 	FrameData framedata;
+
+	void BuildJonb(float offsetX, float offsetY, std::string id, float scale, std::string output, std::string prefix, bool justPat, bool justFra);
 	
 
 private:
@@ -91,8 +93,12 @@ private:
 	float hipOffsetX = 0.0;
 	float hipOffsetY = 0.0;
 	std::string prefix;
+	std::string name;
+	int i1 = 0;
+	int i2 = 0;
 
-	
+	void buildImages(std::ofstream& file, const Frame* frame, std::string id, std::string prefix);
+	void buildHeader(std::ofstream& file, const Sequence* seq, const int fraNum, std::string id, std::string prefix);
 
 
 };

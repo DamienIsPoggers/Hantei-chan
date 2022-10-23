@@ -667,7 +667,7 @@ void MainFrame::Menu(unsigned int errorPopupId)
 					ImGui::Spacing();
 					ImGui::Text("Note: A CG file must be loaded for this to work");
 					ImGui::Separator();
-					//ImGui::Text(cg.get_filename(135));
+					ImGui::Text(cg.get_filename(135));
 					ImGui::Text("Optionals");
 					ImGui::InputFloat("Scale Jonbins", &jonbScaleFactor);
 					//ImGui::InputText("Prefix for sprite names", &prefix);
@@ -678,10 +678,10 @@ void MainFrame::Menu(unsigned int errorPopupId)
 
 					if (ImGui::Button("Create Full HA6", ImVec2(140, 0)))
 					{
-						if (!outputPath.empty() && !charID.empty())
+						if (!outputPath.empty() && !charID.empty() && cg.m_loaded)
 						{
 							hasFailed = false;
-							framedata.BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, false);
+							BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, false);
 						}
 						else {
 							hasFailed = true;
@@ -690,10 +690,10 @@ void MainFrame::Menu(unsigned int errorPopupId)
 					ImGui::SameLine();
 					if (ImGui::Button("Create Current Pattern", ImVec2(140, 0)))
 					{
-						if (!outputPath.empty() && !charID.empty())
+						if (!outputPath.empty() && !charID.empty() && cg.m_loaded)
 						{
 							hasFailed = false;
-							framedata.BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, false);
+							BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, false);
 						}
 						else {
 							hasFailed = true;
@@ -702,10 +702,10 @@ void MainFrame::Menu(unsigned int errorPopupId)
 					ImGui::SameLine();
 					if (ImGui::Button("Create Current Frame", ImVec2(140, 0)))
 					{
-						if (!outputPath.empty() && !charID.empty())
+						if (!outputPath.empty() && !charID.empty() && cg.m_loaded)
 						{
 							hasFailed = false;
-							framedata.BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, false);
+							BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, false);
 						}
 						else {
 							hasFailed = true;

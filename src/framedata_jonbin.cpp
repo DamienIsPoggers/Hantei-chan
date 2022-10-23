@@ -8,20 +8,8 @@
 #define VAL(X) ((const char*)&X)
 #define PTR(X) ((const char*)X)
 
-void buildImages(std::ofstream& file, const Frame* frame, std::string id, std::string prefix);
-int imageCount(const Frame_AF* af);
-void imageName(std::ofstream& file, const Frame_AF* af, const int layerNum, std::string id, std::string prefix);
-void buildHeader(std::ofstream& file, const Sequence* seq, const int fraNum, std::string id, std::string prefix);
-
-CG cg;
-
-void FrameData::BuildJonb(float offsetX, float offsetY, std::string id, float scale, std::string output, std::string prefix, bool justPat, bool justFra)
+void MainFrame::BuildJonb(float offsetX, float offsetY, std::string id, float scale, std::string output, std::string prefix, bool justPat, bool justFra)
 {
-	std::string&& file = FileDialog(fileType::CG);
-	if (!file.empty())
-	{
-		cg.load(file.c_str());
-	}
 	while (i1 < 1000)
 	{
 		if (i2 == 100)
@@ -54,7 +42,7 @@ void FrameData::BuildJonb(float offsetX, float offsetY, std::string id, float sc
 
 			name += ".jonbin";
 
-			auto seq = get_sequence(i1);
+			auto seq = framedata.get_sequence(i1);
 			if (seq)
 			{
 				int nframes = seq->frames.size() - 1;
@@ -65,7 +53,7 @@ void FrameData::BuildJonb(float offsetX, float offsetY, std::string id, float sc
 
 					file.write("JONB", 4);
 
-					buildHeader(file, &m_sequences[i1], i2, id, prefix);
+					buildHeader(file, framedata.get_sequence(i1), i2, id, prefix);
 
 
 					file.close();
@@ -83,7 +71,7 @@ void FrameData::BuildJonb(float offsetX, float offsetY, std::string id, float sc
 	i2 = 0;
 }
 
-void buildHeader(std::ofstream& file, const Sequence *seq, const int fraNum, std::string id, std::string prefix)
+void MainFrame::buildHeader(std::ofstream& file, const Sequence *seq, const int fraNum, std::string id, std::string prefix)
 {
 	int i = 0;
 	for (const auto& frame : seq->frames)
@@ -97,48 +85,38 @@ void buildHeader(std::ofstream& file, const Sequence *seq, const int fraNum, std
 
 }
 
-void buildImages(std::ofstream& file, const Frame* frame, std::string id, std::string prefix)
+void MainFrame::buildImages(std::ofstream& file, const Frame* frame, std::string id, std::string prefix)
 {
-	uint16_t imageNum = imageCount(&frame->AF);
-	file.write(VAL(imageNum), 2);
-
-	for (int i = 1; i <= imageNum; i++)
-	{
-		imageName(file, &frame->AF, i - 1, id, prefix);
-	}
-
-}
-
-int imageCount(const Frame_AF *af)
-{
-	int layers = 0;
+	uint16_t imageNum = 0;
+	const Frame_AF *af = &frame->AF;
+	char buf[32]{};
+	std::string sprName;
 	for (int i = 0; i < af->layers.size(); i++)
 	{
 		const auto& l = af->layers[i];
 		if (l.spriteId > -1)
 		{
-			layers++;
+			imageNum++;
 		}
 	}
-
-	return layers;
-}
-
-void imageName(std::ofstream& file, const Frame_AF* af, int layerNum, std::string id, std::string prefix)
-{
-	const auto& l = af->layers[layerNum];
-	char buf[32]{};
-	std::string sprName;
-	if (l.usePat)
+	file.write(VAL(imageNum), 2);
+	for (int i = 0; i < af->layers.size(); i++)
 	{
-		sprName += "vr_";
-		sprName += id;
-		sprName += "_ef000.bmp";
+		const auto& l = af->layers[i];
+		const int spr = l.spriteId;
+		if (l.spriteId > -1)
+		{
+			if (l.usePat)
+			{
+				sprName += "vr_";
+				sprName += id;
+				sprName += "_ef000.bmp";
+				strncpy(buf, sprName.c_str(), 32);
+			}
+			else {
+				strncpy(buf, cg.get_filename(spr), 32);
+			}
+			file.write(buf, 32);
+		}
 	}
-	else {
-		sprName += prefix;
-		//sprName.push_back(cg.get_filename(l.spriteId));
-	}
-	strncpy(buf, sprName.c_str(), 32);
-	file.write(PTR(buf), 32);
 }
