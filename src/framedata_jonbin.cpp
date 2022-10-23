@@ -67,6 +67,8 @@ void MainFrame::BuildJonb(float offsetX, float offsetY, std::string id, float sc
 
 					buildChunks(file, framedata.get_sequence(i1));
 
+					buildBoxes(file, framedata.get_sequence(i1));
+
 
 					file.close();
 				}
@@ -186,7 +188,6 @@ void MainFrame::buildImages(std::ofstream& file, const Frame* frame, std::string
 {
 	const Frame_AF *af = &frame->AF;
 	char buf[32]{};
-	std::string sprName;
 	for (int i = 0; i < af->layers.size(); i++)
 	{
 		const auto& l = af->layers[i];
@@ -198,6 +199,7 @@ void MainFrame::buildImages(std::ofstream& file, const Frame* frame, std::string
 	file.write(VAL(imageNum), 2);
 	for (int i = 0; i < af->layers.size(); i++)
 	{
+		std::string sprName;
 		const auto& l = af->layers[i];
 		const int spr = l.spriteId;
 		if (l.spriteId > -1)
@@ -222,17 +224,20 @@ void MainFrame::buildChunks(std::ofstream& file, const Sequence* seq)
 	const auto& l = seq->frames[i2].AF.layers;
 	uint64_t zero = 0;
 	int t = 3;
+	int one = 1;
 	int unknown = 1065353216;
 	for (int i = 0; i < imageNum; i++)
 	{
-		if (l[i].usePat)
+		if (l[i].usePat && l[i].spriteId > -1)
 		{
 			float num = l[i].spriteId;
 			file.write(VAL(num), 4);
 			file.write(VAL(num), 4);
 			file.write(VAL(num), 4);
 			file.write(VAL(num), 4);
-			file.write(VAL(zero), 8);
+			float lNum = i + 1;
+			file.write(VAL(lNum), 4);
+			file.write(VAL(zero), 4);
 			file.write(VAL(zero), 8);
 			if (imageNum > 1 && i == 0)
 			{
@@ -258,7 +263,7 @@ void MainFrame::buildChunks(std::ofstream& file, const Sequence* seq)
 			file.write(VAL(width), 4);
 			file.write(VAL(height), 4);
 			float offsetX = ((128 + (l[i].offset_x * l[i].scale[0]) *(-1))) *jonbScaleFactor;
-			float offsetY = (224 + (l[i].offset_x * l[i].scale[0])) * jonbScaleFactor;
+			float offsetY = ((-224) + (l[i].offset_y * l[i].scale[0])) * jonbScaleFactor;
 			file.write(VAL(offsetX), 4);
 			file.write(VAL(offsetY), 4);
 			width = ((width * (-1)) * l[i].scale[0])*jonbScaleFactor;
@@ -269,13 +274,146 @@ void MainFrame::buildChunks(std::ofstream& file, const Sequence* seq)
 			file.write(VAL(unknown), 4);
 			file.write(VAL(zero), 8);
 			file.write(VAL(zero), 8);
+			if (i > 0)
+			{
+				int j = i - 1;
+				if (l[j].usePat && l[j].spriteId > -1)
+				{
+					file.write(VAL(one), 4);
+				}
+				else{
+					file.write(VAL(zero), 4);
+				}
+			}
+			else {
+				file.write(VAL(zero), 4);
+			}
 			file.write(VAL(zero), 8);
 			file.write(VAL(zero), 8);
-			file.write(VAL(zero), 4);
 		}
 		else {
 			imageNum++;
 		}
-		i++;
+	}
+}
+
+void MainFrame::buildBoxes(std::ofstream& file, const Sequence* seq)
+{
+	uint64_t zero = 0;
+	uint32_t ID = 0;
+
+	auto& frame = framedata.get_sequence(i1)->frames;
+	BoxList& boxes = frame[i2].hitboxes;
+	for (int j = 1; j <= 8; j++)
+	{
+		if (!(boxes[j].xy[0] == 0 && boxes[j].xy[1] == 0
+			&& boxes[j].xy[2] == 0 && boxes[j].xy[3] == 0))
+		{
+			file.write(VAL(ID), 4);
+			float X = (boxes[j].xy[0] * (-1)) * jonbScaleFactor;
+			float Y = boxes[j].xy[1] * jonbScaleFactor;
+			float width = (boxes[j].xy[0] - boxes[j].xy[2]) * jonbScaleFactor;
+			float height = ((boxes[j].xy[1] - boxes[j].xy[3])*(-1)) * jonbScaleFactor;
+			file.write(VAL(X), 4);
+			file.write(VAL(Y), 4);
+			file.write(VAL(width), 4);
+			file.write(VAL(height), 4);
+		}
+	}
+	ID = 1;
+	for (int j = 25; j <= 32; j++)
+	{
+		if (!(boxes[j].xy[0] == 0 && boxes[j].xy[1] == 0
+			&& boxes[j].xy[2] == 0 && boxes[j].xy[3] == 0))
+		{
+			file.write(VAL(ID), 4);
+			float X = (boxes[j].xy[0] * (-1)) * jonbScaleFactor;
+			float Y = boxes[j].xy[1] * jonbScaleFactor;
+			float width = (boxes[j].xy[0] - boxes[j].xy[2]) * jonbScaleFactor;
+			float height = ((boxes[j].xy[1] - boxes[j].xy[3]) * (-1)) * jonbScaleFactor;
+			file.write(VAL(X), 4);
+			file.write(VAL(Y), 4);
+			file.write(VAL(width), 4);
+			file.write(VAL(height), 4);
+		}
+	}
+	ID = 2;
+	if (specToSnap)
+	{
+		for (int j = 9; j <= 10; j++)
+		{
+			if (!(boxes[j].xy[0] == 0 && boxes[j].xy[1] == 0
+				&& boxes[j].xy[2] == 0 && boxes[j].xy[3] == 0))
+			{
+				file.write(VAL(ID), 4);
+				float X = (boxes[j].xy[0] * (-1)) * jonbScaleFactor;
+				float Y = boxes[j].xy[1] * jonbScaleFactor;
+				file.write(VAL(X), 4);
+				file.write(VAL(Y), 4);
+				file.write(VAL(zero), 8);
+			}
+		}
+	}
+
+	if (seq)
+	{
+		auto& ef = seq->frames[i2].EF;
+		for (int j = 0; j < ef.size(); j++)
+		{
+			if (ef[j].type == 14)
+			{
+				file.write(VAL(ID), 4);
+				float X = (ef[j].parameters[0] * (-1)) * jonbScaleFactor;
+				float Y = ef[j].parameters[1] * jonbScaleFactor;
+				file.write(VAL(X), 4);
+				file.write(VAL(Y), 4);
+				file.write(VAL(zero), 8);
+			}
+		}
+	}
+
+	ID = 7;
+	if (!(boxes[18].xy[0] == 0 && boxes[18].xy[1] == 0
+		&& boxes[18].xy[2] == 0 && boxes[18].xy[3] == 0))
+	{
+		file.write(VAL(ID), 4);
+		float X = (boxes[18].xy[0] * (-1)) * jonbScaleFactor;
+		float Y = boxes[18].xy[1] * jonbScaleFactor;
+		file.write(VAL(X), 4);
+		file.write(VAL(Y), 4);
+		file.write(VAL(zero), 8);
+	}
+	ID = 8;
+	if (!(boxes[19].xy[0] == 0 && boxes[19].xy[1] == 0
+		&& boxes[19].xy[2] == 0 && boxes[19].xy[3] == 0))
+	{
+		file.write(VAL(ID), 4);
+		float X = (boxes[19].xy[0] * (-1)) * jonbScaleFactor;
+		float Y = boxes[19].xy[1] * jonbScaleFactor;
+		file.write(VAL(X), 4);
+		file.write(VAL(Y), 4);
+		file.write(VAL(zero), 8);
+	}
+	ID = 11;
+	if (!(boxes[20].xy[0] == 0 && boxes[20].xy[1] == 0
+		&& boxes[20].xy[2] == 0 && boxes[20].xy[3] == 0))
+	{
+		file.write(VAL(ID), 4);
+		float X = (boxes[20].xy[0] * (-1)) * jonbScaleFactor;
+		float Y = boxes[20].xy[1] * jonbScaleFactor;
+		file.write(VAL(X), 4);
+		file.write(VAL(Y), 4);
+		file.write(VAL(zero), 8);
+	}
+	ID = 12;
+	if (!(boxes[21].xy[0] == 0 && boxes[21].xy[1] == 0
+		&& boxes[21].xy[2] == 0 && boxes[21].xy[3] == 0))
+	{
+		file.write(VAL(ID), 4);
+		float X = (boxes[21].xy[0] * (-1)) * jonbScaleFactor;
+		float Y = boxes[21].xy[1] * jonbScaleFactor;
+		file.write(VAL(X), 4);
+		file.write(VAL(Y), 4);
+		file.write(VAL(zero), 8);
 	}
 }

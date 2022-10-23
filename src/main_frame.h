@@ -109,6 +109,7 @@ private:
 	void buildImages(std::ofstream& file, const Frame* frame, std::string id, std::string prefix);
 	void buildHeader(std::ofstream& file, const Sequence* seq, const int fraNum, std::string id, std::string prefix);
 	void buildChunks(std::ofstream& file, const Sequence* seq);
+	void buildBoxes(std::ofstream& file, const Sequence* seq);
 
 
 };
