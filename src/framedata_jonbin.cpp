@@ -277,7 +277,7 @@ void MainFrame::buildChunks(std::ofstream& file, const Sequence* seq)
 			if (i > 0)
 			{
 				int j = i - 1;
-				if (l[j].usePat && l[j].spriteId > -1)
+				if (l[j].spriteId > -1)
 				{
 					file.write(VAL(one), 4);
 				}
