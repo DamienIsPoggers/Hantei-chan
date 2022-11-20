@@ -105,6 +105,8 @@ private:
 	uint16_t snapCount4 = 0;
 	uint16_t snapCount5 = 0;
 	bool specToSnap = false;
+	bool removeLayer = false;
+	int layer[2] = { -1, -1 };
 
 	void buildImages(std::ofstream& file, const Frame* frame, std::string id, std::string prefix);
 	void buildHeader(std::ofstream& file, const Sequence* seq, const int fraNum, std::string id, std::string prefix);

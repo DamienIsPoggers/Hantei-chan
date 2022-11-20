@@ -12,22 +12,20 @@
 
 void MainFrame::BuildJonb(float offsetX, float offsetY, std::string id, float scale, std::string output, std::string prefix, bool justPat, bool justFra)
 {
-	while (i1 < 1000)
+	if (justPat)
 	{
-		imageNum = 0;
-		hurtboxCount = 0;
-		hitboxCount = 0;
-		snapCount1 = 0;
-		snapCount2 = 0;
-		snapCount3 = 0;
-		snapCount4 = 0;
-		snapCount5 = 0;
-		if (i2 == 100)
+		i1 = currState.pattern;
+		while (i2 < 100)
 		{
-			i2 = -1;
-			i1++;
-		}
-		else {
+			imageNum = 0;
+			hurtboxCount = 0;
+			hitboxCount = 0;
+			snapCount1 = 0;
+			snapCount2 = 0;
+			snapCount3 = 0;
+			snapCount4 = 0;
+			snapCount5 = 0;
+
 			name.clear();
 			name = output + "Action_";
 			if (i1 < 10)
@@ -73,13 +71,143 @@ void MainFrame::BuildJonb(float offsetX, float offsetY, std::string id, float sc
 					file.close();
 				}
 				else {
-					i1++;
-					i2 = -1;
+					i2 = 101;
 				}
 			}
-
+			i2++;
 		}
-		i2++;
+	}
+	else if (justFra)
+	{
+		imageNum = 0;
+		hurtboxCount = 0;
+		hitboxCount = 0;
+		snapCount1 = 0;
+		snapCount2 = 0;
+		snapCount3 = 0;
+		snapCount4 = 0;
+		snapCount5 = 0;
+
+		i1 = currState.pattern;
+		i2 = currState.frame;
+
+		name.clear();
+		name = output + "Action_";
+		if (i1 < 10)
+		{
+			name += "00" + std::to_string(i1);
+		}
+		else if (i1 < 100)
+		{
+			name += "0" + std::to_string(i1);
+		}
+		else {
+			name += std::to_string(i1);
+		}
+
+		if (i2 < 10)
+		{
+			name += "_0" + std::to_string(i2);
+		}
+		else {
+			name += "_" + std::to_string(i2);
+		}
+
+		name += ".jonbin";
+
+		auto seq = framedata.get_sequence(i1);
+		if (seq)
+		{
+			int nframes = seq->frames.size() - 1;
+
+			if (nframes >= 0 && i2 <= nframes)
+			{
+				std::ofstream file(name, std::ios_base::out | std::ios_base::binary);
+
+				file.write("JONB", 4);
+
+				buildHeader(file, framedata.get_sequence(i1), i2, id, prefix);
+
+				buildChunks(file, framedata.get_sequence(i1));
+
+				buildBoxes(file, framedata.get_sequence(i1));
+
+
+				file.close();
+			}
+		}
+	}
+	else {
+		while (i1 < 1000)
+		{
+			imageNum = 0;
+			hurtboxCount = 0;
+			hitboxCount = 0;
+			snapCount1 = 0;
+			snapCount2 = 0;
+			snapCount3 = 0;
+			snapCount4 = 0;
+			snapCount5 = 0;
+
+			if (i2 == 100)
+			{
+				i2 = -1;
+				i1++;
+			}
+			else {
+				name.clear();
+				name = output + "Action_";
+				if (i1 < 10)
+				{
+					name += "00" + std::to_string(i1);
+				}
+				else if (i1 < 100)
+				{
+					name += "0" + std::to_string(i1);
+				}
+				else {
+					name += std::to_string(i1);
+				}
+
+				if (i2 < 10)
+				{
+					name += "_0" + std::to_string(i2);
+				}
+				else {
+					name += "_" + std::to_string(i2);
+				}
+
+				name += ".jonbin";
+
+				auto seq = framedata.get_sequence(i1);
+				if (seq)
+				{
+					int nframes = seq->frames.size() - 1;
+
+					if (nframes >= 0 && i2 <= nframes)
+					{
+						std::ofstream file(name, std::ios_base::out | std::ios_base::binary);
+
+						file.write("JONB", 4);
+
+						buildHeader(file, framedata.get_sequence(i1), i2, id, prefix);
+
+						buildChunks(file, framedata.get_sequence(i1));
+
+						buildBoxes(file, framedata.get_sequence(i1));
+
+
+						file.close();
+					}
+					else {
+						i1++;
+						i2 = -1;
+					}
+				}
+
+			}
+			i2++;
+		}
 	}
 	i1 = 0;
 	i2 = 0;
@@ -190,31 +318,37 @@ void MainFrame::buildImages(std::ofstream& file, const Frame* frame, std::string
 	char buf[32]{};
 	for (int i = 0; i < af->layers.size(); i++)
 	{
-		const auto& l = af->layers[i];
-		if (l.spriteId > -1)
+		if (i != layer[0] && i != layer[1] && removeLayer)
 		{
-			imageNum++;
+			const auto& l = af->layers[i];
+			if (l.spriteId > -1)
+			{
+				imageNum++;
+			}
 		}
 	}
 	file.write(VAL(imageNum), 2);
 	for (int i = 0; i < af->layers.size(); i++)
 	{
-		std::string sprName;
-		const auto& l = af->layers[i];
-		const int spr = l.spriteId;
-		if (l.spriteId > -1)
+		if (i != layer[0] && i != layer[1] && removeLayer)
 		{
-			if (l.usePat)
+			std::string sprName;
+			const auto& l = af->layers[i];
+			const int spr = l.spriteId;
+			if (l.spriteId > -1)
 			{
-				sprName += "vr_";
-				sprName += id;
-				sprName += "_ef000.bmp";
-				strncpy(buf, sprName.c_str(), 32);
+				if (l.usePat)
+				{
+					sprName += "vr_";
+					sprName += id;
+					sprName += "_ef000.bmp";
+					strncpy(buf, sprName.c_str(), 32);
+				}
+				else {
+					strncpy(buf, cg.get_filename(spr), 32);
+				}
+				file.write(buf, 32);
 			}
-			else {
-				strncpy(buf, cg.get_filename(spr), 32);
-			}
-			file.write(buf, 32);
 		}
 	}
 }

@@ -669,6 +669,11 @@ void MainFrame::Menu(unsigned int errorPopupId)
 					ImGui::Separator();
 					
 					ImGui::Text("Optionals");
+					ImGui::Checkbox("Remove Layer", &removeLayer);
+					if (removeLayer)
+					{
+						ImGui::InputInt2("Layer Number", layer, 0);
+					}
 					ImGui::InputFloat("Scale Jonbins", &jonbScaleFactor);
 					//ImGui::InputText("Prefix for sprite names", &prefix);
 					ImGui::Checkbox("Convert Special boxes to Snap boxes", &specToSnap);
@@ -694,7 +699,7 @@ void MainFrame::Menu(unsigned int errorPopupId)
 						if (!outputPath.empty() && !charID.empty() && cg.m_loaded)
 						{
 							hasFailed = false;
-							BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, false);
+							BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, true, false);
 						}
 						else {
 							hasFailed = true;
@@ -706,7 +711,7 @@ void MainFrame::Menu(unsigned int errorPopupId)
 						if (!outputPath.empty() && !charID.empty() && cg.m_loaded)
 						{
 							hasFailed = false;
-							BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, false);
+							BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, true);
 						}
 						else {
 							hasFailed = true;
