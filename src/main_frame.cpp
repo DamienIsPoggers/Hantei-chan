@@ -459,54 +459,16 @@ void MainFrame::Menu(unsigned int errorPopupId)
 				currentFilePath.clear();
 			}
 
-			ImGui::Separator();
-			if (ImGui::MenuItem("Load from .txt..."))
+			if (ImGui::MenuItem("Load Pat..."))
 			{
-				std::string &&file = FileDialog(fileType::TXT);
-				if(!file.empty())
+				std::string&& file = FileDialog(fileType::PAT);
+				if (!file.empty())
 				{
-					if(!LoadFromIni(&framedata, &cg, &parts, file))
+					if (!parts.Load(file.c_str()))
 					{
 						ImGui::OpenPopup(errorPopupId);
 					}
-					else
-					{
-						currentFilePath.clear();
-						mainPane.RegenerateNames();
-						render.SwitchImage(nullptr);
-					}
-				}
-			}
-
-			if (ImGui::MenuItem("Load HA6..."))
-			{
-				std::string &&file = FileDialog(fileType::HA6);
-				if(!file.empty())
-				{
-					if(!framedata.load(file.c_str()))
-					{
-						ImGui::OpenPopup(errorPopupId);
-					}
-					else
-					{
-						currentFilePath = file;
-						mainPane.RegenerateNames();
-					}
-				}
-			}
-
-			if (ImGui::MenuItem("Load HA6 and Patch..."))
-			{
-				std::string &&file = FileDialog(fileType::HA6);
-				if(!file.empty())
-				{
-					if(!framedata.load(file.c_str(), true))
-					{
-						ImGui::OpenPopup(errorPopupId);
-					}
-					else
-						mainPane.RegenerateNames();
-					currentFilePath.clear();
+					render.SwitchImage(nullptr);
 				}
 			}
 
@@ -514,7 +476,7 @@ void MainFrame::Menu(unsigned int errorPopupId)
 			if (ImGui::MenuItem("Save", "Ctrl+S")) 
 			{
 				if(currentFilePath.empty())
-					currentFilePath = FileDialog(fileType::HA6, true);
+					currentFilePath = FileDialog(fileType::PAT, true);
 				if(!currentFilePath.empty())
 				{
 					framedata.save(currentFilePath.c_str());
@@ -523,7 +485,7 @@ void MainFrame::Menu(unsigned int errorPopupId)
 
 			if (ImGui::MenuItem("Save as...")) 
 			{
-				std::string &&file = FileDialog(fileType::HA6, true);
+				std::string &&file = FileDialog(fileType::PAT, true);
 				if(!file.empty())
 				{
 					framedata.save(file.c_str());
@@ -531,33 +493,8 @@ void MainFrame::Menu(unsigned int errorPopupId)
 				}
 			}
 
+			
 			ImGui::Separator();
-			if (ImGui::MenuItem("Load CG...")) 
-			{
-				std::string &&file = FileDialog(fileType::CG);
-				if(!file.empty())
-				{
-					if(!cg.load(file.c_str()))
-					{
-						ImGui::OpenPopup(errorPopupId);	
-					}
-					render.SwitchImage(nullptr);
-				}
-			}
-
-			if (ImGui::MenuItem("Load Parts...")) 
-			{
-				std::string &&file = FileDialog(fileType::PAT);
-				if(!file.empty())
-				{
-					if(!parts.Load(file.c_str()))
-					{
-						ImGui::OpenPopup(errorPopupId);	
-					}
-					render.SwitchImage(nullptr);
-				}
-			}
-
 			if (ImGui::MenuItem("Load palette...")) 
 			{
 				std::string &&file = FileDialog(fileType::PAL);
@@ -611,15 +548,6 @@ void MainFrame::Menu(unsigned int errorPopupId)
 				}
 				ImGui::EndMenu();
 			}
-			if (ImGui::BeginMenu("Filter"))
-			{
-				if (ImGui::Checkbox("Bilinear", &smoothRender))
-				{
-					render.filter = smoothRender;
-					render.SwitchImage(nullptr);
-				}
-				ImGui::EndMenu();
-			}
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Tools"))
@@ -654,71 +582,6 @@ void MainFrame::Menu(unsigned int errorPopupId)
 							}
 						}
 					}
-				}
-				ImGui::EndMenu();
-			}
-			if (ImGui::BeginMenu("Create Jonbins"))
-			{
-				if (framedata.m_loaded)
-				{
-					ImGui::Text("Requirements");
-					ImGui::InputText("Output Path", &outputPath);
-					ImGui::InputText("Character ID for pat", &charID);
-					ImGui::Spacing();
-					ImGui::Text("Note: A CG file must be loaded for this to work");
-					ImGui::Separator();
-					
-					ImGui::Text("Optionals");
-					ImGui::InputFloat("Scale Jonbins", &jonbScaleFactor);
-					//ImGui::InputText("Prefix for sprite names", &prefix);
-					ImGui::Checkbox("Convert Special boxes to Snap boxes", &specToSnap);
-					ImGui::InputFloat("X Offset for hip", &hipOffsetX);
-					ImGui::InputFloat("Y Offset for hip", &hipOffsetY);
-					ImGui::Text("Offsets are made using a hip's canvas. \nUse Geo's ArcSysAIOCLITool for getting hips.");
-					ImGui::Separator();
-
-					if (ImGui::Button("Create Full HA6", ImVec2(140, 0)))
-					{
-						if (!outputPath.empty() && !charID.empty() && cg.m_loaded)
-						{
-							hasFailed = false;
-							BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, false);
-						}
-						else {
-							hasFailed = true;
-						}
-					}
-					ImGui::SameLine();
-					if (ImGui::Button("Create Current Pattern", ImVec2(140, 0)))
-					{
-						if (!outputPath.empty() && !charID.empty() && cg.m_loaded)
-						{
-							hasFailed = false;
-							BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, false);
-						}
-						else {
-							hasFailed = true;
-						}
-					}
-					ImGui::SameLine();
-					if (ImGui::Button("Create Current Frame", ImVec2(140, 0)))
-					{
-						if (!outputPath.empty() && !charID.empty() && cg.m_loaded)
-						{
-							hasFailed = false;
-							BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, false);
-						}
-						else {
-							hasFailed = true;
-						}
-					}
-					if (hasFailed)
-					{
-						ImGui::Text("Please fill out the requirements and have a CG file loaded.");
-					}
-				}
-				else {
-					ImGui::Text("Load some data first.");
 				}
 				ImGui::EndMenu();
 			}

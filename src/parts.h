@@ -15,6 +15,7 @@ public:
 	CG* cg;
 	char* data = nullptr;
 
+	//VE data
 	struct Shape
 	{
 		int type;
@@ -28,46 +29,49 @@ public:
 		int dz;
 	};
 
-	//Box cut-out
+	//PP data
 	struct CutOut
 	{
-		char* name;
+		char* name; //PPNA
 
-		int uv[4];
-		int xy[2];
-		int wh[2];
-		int texture = 0;
+		int uv[4]; //PPUV
+		int xy[2]; //PPCC
+		int wh[2]; //PPSS
+		int texture = 0; //PPTP
 		//int type;
-		int jump;
-		int vaoIndex;
-		unsigned char colorSlot;
-		int shapeIndex;
+		int jump; //unused??
+		int vaoIndex; //used but idk for
+		unsigned char colorSlot; //PPPA
+		int shapeIndex; //PPPP
 	};
 
+	//PG data
 	struct PartGfx {
-		char* name;
-		char* data;
-		int w, h;
+		char* name; //PGNM
+		char* data; 
+		//PGT2 data
+		int w, h; //bytes 5-8 && 9-12
 		int bpp;
-		int type;
-		int textureIndex;
+		int type; //bytes 13-16
+		int textureIndex; //PGST
 		unsigned char* s3tc = nullptr;
 		bool dontDelete = false;
 	};
 
+	//PR data
 	struct PartProperty {
-		float priority;
-		float rotation[3];
-		float x;
-		float y;
-		float scaleX = 1.f;
-		float scaleY = 1.f;
-		int ppId;
-		bool additive;
-		bool filter;
-		char flip;
-		unsigned char bgra[4] = { 255,255,255,255 };
-		unsigned char addColor[4] = { 0,0,0,0 };
+		float priority; //PRST ?
+		float rotation[3]; //PRA3
+		float x; //PRXY 1-4
+		float y; //PRXY 5-8
+		float scaleX = 1.f; //PRZM 1-4
+		float scaleY = 1.f; //PRZM 5-8
+		int ppId; //PRID
+		bool additive; //PRAL
+		bool filter; //PRFL
+		char flip; //PRAV
+		unsigned char bgra[4] = { 255,255,255,255 }; //PRCL
+		unsigned char addColor[4] = { 0,0,0,0 }; //PRSP
 	};
 
 	//Has id and a list of parts
