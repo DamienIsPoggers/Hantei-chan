@@ -318,8 +318,18 @@ void MainFrame::buildImages(std::ofstream& file, const Frame* frame, std::string
 	char buf[32]{};
 	for (int i = 0; i < af->layers.size(); i++)
 	{
-		if (i != layer[0] && i != layer[1] && removeLayer)
+		if (removeLayer)
 		{
+			if (i != layer[0] && i != layer[1])
+			{
+				const auto& l = af->layers[i];
+				if (l.spriteId > -1)
+				{
+					imageNum++;
+				}
+			}
+		}
+		else {
 			const auto& l = af->layers[i];
 			if (l.spriteId > -1)
 			{
@@ -330,24 +340,49 @@ void MainFrame::buildImages(std::ofstream& file, const Frame* frame, std::string
 	file.write(VAL(imageNum), 2);
 	for (int i = 0; i < af->layers.size(); i++)
 	{
-		if (i != layer[0] && i != layer[1] && removeLayer)
+		if (removeLayer)
 		{
-			std::string sprName;
-			const auto& l = af->layers[i];
-			const int spr = l.spriteId;
-			if (l.spriteId > -1)
+			if (i != layer[0] && i != layer[1])
 			{
-				if (l.usePat)
+				std::string sprName;
+				const auto& l = af->layers[i];
+				const int spr = l.spriteId;
+				if (l.spriteId > -1)
 				{
-					sprName += "vr_";
-					sprName += id;
-					sprName += "_ef000.bmp";
-					strncpy(buf, sprName.c_str(), 32);
+					if (l.usePat)
+					{
+						sprName += "vr_";
+						sprName += id;
+						sprName += "_ef000.bmp";
+						strncpy(buf, sprName.c_str(), 32);
+					}
+					else {
+						strncpy(buf, cg.get_filename(spr), 32);
+					}
+					file.write(buf, 32);
 				}
-				else {
-					strncpy(buf, cg.get_filename(spr), 32);
+			}
+		}
+		else {
+			if (i != layer[0] && i != layer[1])
+			{
+				std::string sprName;
+				const auto& l = af->layers[i];
+				const int spr = l.spriteId;
+				if (l.spriteId > -1)
+				{
+					if (l.usePat)
+					{
+						sprName += "vr_";
+						sprName += id;
+						sprName += "_ef000.bmp";
+						strncpy(buf, sprName.c_str(), 32);
+					}
+					else {
+						strncpy(buf, cg.get_filename(spr), 32);
+					}
+					file.write(buf, 32);
 				}
-				file.write(buf, 32);
 			}
 		}
 	}
