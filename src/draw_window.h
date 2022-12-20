@@ -8,10 +8,11 @@
 class DrawWindow
 {
 public:
-	DrawWindow(Render* render, FrameData *frameData, FrameState &state):
+	DrawWindow(Render* render, FrameData* frameData, FrameState& state, Parts* parts) :
 		render(render),
 		frameData(frameData),
-		currState(state){};
+		parts(parts),
+		currState(state) {};
 
 	FrameState &currState;
 	bool isVisible = true;
@@ -20,6 +21,7 @@ public:
 protected:
 	Render *render;
 	FrameData *frameData;
+	Parts* parts;
 };
 
 #endif /* DRAWWINDOW_H_GUARD */

@@ -12,7 +12,7 @@ std::set<int> numberSet;
 void FrameData::initEmpty()
 {
 	Free();
-	m_nsequences = 1000;
+	m_nsequences = 1;
 	m_sequences.resize(m_nsequences);
 	m_loaded = 1;
 }
@@ -180,4 +180,22 @@ FrameData::FrameData() {
 
 FrameData::~FrameData() {
 	Free();
+}
+
+
+void FrameData::updateSpr(int sprNum)
+{
+	auto seq = get_sequence(0);
+	if (seq)
+	{
+		if (seq->frames.size() <= 0)
+		{
+			seq->frames.push_back({});
+			seq->frames.back().AF.layers.resize(1);
+		}
+		Frame& frame = seq->frames[0];
+		Frame_AF *af = &frame.AF;
+		auto* layer = &af->layers[0];
+		layer->spriteId = sprNum;
+	}
 }

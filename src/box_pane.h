@@ -7,7 +7,7 @@
 class BoxPane : DrawWindow
 {
 public:
-	BoxPane(Render* render, FrameData *frameData, FrameState &state);
+	BoxPane(Render* render, FrameData *frameData, FrameState &state, Parts *parts);
 
 	void Draw();
 

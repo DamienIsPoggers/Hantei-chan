@@ -3,6 +3,7 @@
 #include "draw_window.h"
 #include "framedata.h"
 #include "render.h"
+#include "parts.h"
 #include <string>
 #include <list>
 
@@ -11,9 +12,7 @@ class MainPane : DrawWindow
 {
 public:
 
-	bool isEditingPat = false;
-
-	MainPane(Render* render, FrameData *frameData, FrameState &fs);
+	MainPane(Render* render, FrameData *frameData, FrameState &fs, Parts *parts);
 	void Draw();
 
 	void RegenerateNames();
@@ -34,6 +33,10 @@ private:
 
 	std::list<SequenceWId> patCopyStack;
 	void PopCopies();
+
+	int sprNum = 0;
+	int layerNum = 0;
+	int ptcNum = 0;
 
 };
 

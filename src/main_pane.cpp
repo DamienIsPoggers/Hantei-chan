@@ -4,7 +4,7 @@
 #include <imgui.h>
 
 
-MainPane::MainPane(Render* render, FrameData *framedata, FrameState &fs) : DrawWindow(render, framedata, fs),
+MainPane::MainPane(Render* render, FrameData *framedata, FrameState &fs, Parts *part) : DrawWindow(render, framedata, fs, part),
 decoratedNames(nullptr)
 {
 	
@@ -14,7 +14,7 @@ void MainPane::RegenerateNames()
 {
 	delete[] decoratedNames;
 	
-	if(frameData && frameData->m_loaded)
+	if(parts && parts->loaded)
 	{
 		decoratedNames = new std::string[frameData->get_sequence_count()];
 		int count = frameData->get_sequence_count();
@@ -32,26 +32,43 @@ void MainPane::Draw()
 {	
 	namespace im = ImGui;
 	im::Begin("Left Pane",0);
-	if(frameData->m_loaded)
+	if(parts->loaded)
 	{
-		if (im::BeginCombo("Pattern", decoratedNames[currState.pattern].c_str(), ImGuiComboFlags_HeightLargest))
+		frameData->updateSpr(sprNum);
+		//if(im::BeginCombo("Sprite", ))
+		if (im::TreeNode("Sprite Data"))
 		{
-			auto count = frameData->get_sequence_count();
-			for (int n = 0; n < count; n++)
-			{
-				const bool is_selected = (currState.pattern == n);
-				if (im::Selectable(decoratedNames[n].c_str(), is_selected))
-				{
-					currState.pattern = n;
-					currState.frame = 0;
-				}
+			im::SetNextItemWidth(125.0f);
+			im::InputInt("Sprite", &sprNum);
+			im::SameLine();
+			im::SetNextItemWidth(125.0f);
+			im::InputInt("Layer", &layerNum);
+			
+			if (parts->GetPr(sprNum, layerNum) == nullptr)
+				im::Text("Sprite and/or Layer doesnt exist");
+			else
+				PRDisplay(parts->GetPr(sprNum, layerNum), &parts->groupNames[sprNum]);
 
-				// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-				if (is_selected)
-					im::SetItemDefaultFocus();
-			}
-			im::EndCombo();
+			im::Separator();
+
+			if (im::Button("New Sprite")) parts->newSprite(sprNum);
+			im::SameLine();
+			if (im::Button("New Layer")) parts->newLayer(sprNum, layerNum);
+			im::TreePop();
 		}
+
+		if (im::TreeNode("Particle Data"))
+		{
+			im::InputInt("Particle", &ptcNum);
+
+			im::Separator();
+
+			if (parts->GetPP(ptcNum) == nullptr)
+				im::Text("Particle doesnt exist");
+			else
+				PPDisplay(parts->GetPP(ptcNum));
+		}
+		/*
 		auto seq = frameData->get_sequence(currState.pattern);
 		if(seq)
 		{
@@ -223,13 +240,13 @@ void MainPane::Draw()
 			else
 				rangeWindow = false;
 			im::EndChild();
-		}
+		} */
 	}
 	else
 		im::Text("Load some data first.");
 
 	im::End();
-
+	/*
 	if(rangeWindow)
 	{
 		auto seq = frameData->get_sequence(currState.pattern);
@@ -297,7 +314,7 @@ void MainPane::Draw()
 			}
 		}
 		im::End();
-	}
+	}*/
 }
 
 void MainPane::PopCopies()

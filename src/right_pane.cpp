@@ -5,6 +5,7 @@
 void RightPane::Draw()
 {	
 	ImGui::Begin("Right Pane", 0);
+	/*
 	auto seq = frameData->get_sequence(currState.pattern);
 	if(seq)
 	{
@@ -63,6 +64,7 @@ void RightPane::Draw()
 			}
 		}
 	}
+	*/
 	ImGui::End();
 }
 

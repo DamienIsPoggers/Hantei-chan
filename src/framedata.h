@@ -16,7 +16,7 @@ extern int maxCount;
 
 struct Layer{
 	int spriteId = -1;
-	bool usePat;
+	bool usePat = true;
 	int offset_y;
 	int offset_x;
 	int blend_mode;
@@ -167,7 +167,6 @@ struct Frame_IF {
 	int		parameters[9]; //Max used value is 9. I don't know if parameters beyond have any effect..
 };
 
-
 template<template<typename> class Allocator = std::allocator>
 struct Frame_T {
 	Frame_AF_T<Allocator> AF = {};
@@ -273,6 +272,8 @@ public:
 
 	FrameData();
 	~FrameData();
+
+	void updateSpr(int sprNum);
 
 
 

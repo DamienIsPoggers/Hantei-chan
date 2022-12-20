@@ -3,8 +3,8 @@
 
 constexpr int boxLimit = 33; 
 
-BoxPane::BoxPane(Render* render, FrameData *frameData, FrameState &state):
-DrawWindow(render, frameData, state),
+BoxPane::BoxPane(Render* render, FrameData *frameData, FrameState &state, Parts *parts):
+DrawWindow(render, frameData, state, parts),
 currentBox(0), highlight(false)
 {
 	//Init box names
@@ -70,7 +70,7 @@ void BoxPane::Draw()
 	namespace im = ImGui;
 	im::Begin("Box Pane",0);
 
-
+	/*
 	if(frameData->get_sequence(currState.pattern) && frameData->get_sequence(currState.pattern)->frames.size() > 0)
 	{
 		auto &frames = frameData->get_sequence(currState.pattern)->frames;
@@ -141,7 +141,7 @@ void BoxPane::Draw()
 		im::InputScalarN("Top left", ImGuiDataType_S32, boxes[currentBox].xy, 2, &step, NULL, "%d", 0);
 		im::InputScalarN("Bottom right", ImGuiDataType_S32, boxes[currentBox].xy+2, 2, &step, NULL, "%d", 0);
 	}
-
+	*/
 
 	im::End();
 }

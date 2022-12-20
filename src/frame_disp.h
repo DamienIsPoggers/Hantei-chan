@@ -1,8 +1,91 @@
 #include <imgui.h>
 #include "imgui_utils.h"
 #include "framedata.h"
+#include "parts.h"
 
 namespace im = ImGui;
+
+inline void PRDisplay(PartProperty *PR, std::string *name)
+{
+	constexpr float width = 50.f;
+	
+	if (PR == nullptr)
+	{
+		im::Text("Sprite and/or Layer doesn't exist in file.");
+	}
+	else {
+		im::InputInt("Particle ID", &PR->ppId);
+		im::Separator();
+
+		im::SetNextItemWidth(width);
+		im::DragInt("X", &PR->x);
+		im::SameLine();
+		im::SetNextItemWidth(width);
+		im::DragInt("Y", &PR->y);
+
+		im::Checkbox("Bilinear Filter", &PR->filter);
+		im::SameLine();
+		im::Checkbox("Additive Filter", &PR->additive);
+		im::SameLine();
+		im::Checkbox("Flip", (bool*)&PR->flip);
+		im::ColorEdit4("Color", PR->rgba);
+		PR->bgra[0] = PR->rgba[2] * 255;
+		PR->bgra[1] = PR->rgba[1] * 255;
+		PR->bgra[2] = PR->rgba[0] * 255;
+		PR->bgra[3] = PR->rgba[3] * 255;
+		im::ColorEdit3("Color Overlay", PR->addRgba);
+		PR->addColor[0] = PR->addRgba[2] * 255;
+		PR->addColor[1] = PR->addRgba[1] * 255;
+		PR->addColor[2] = PR->addRgba[0] * 255;
+
+		im::DragFloat3("Rot XYZ", PR->rotation, 0.005);
+		float* scale[2]{ &PR->scaleX, &PR->scaleY };
+		im::DragFloat2("Scale", *scale, 0.1);
+		im::InputInt("Layer priority", &PR->priority);
+	}
+}
+
+inline void PPDisplay(CutOut* pp)
+{
+	constexpr float width = 50.f;
+
+	im::SetNextItemWidth(width);
+	im::DragInt("UV X", &pp->uv[0]);
+	im::SameLine();
+	im::SetNextItemWidth(width);
+	im::DragInt("UV Y", &pp->uv[1]);
+
+	im::SetNextItemWidth(width);
+	im::DragInt("UV Width", &pp->uv[2]);
+	im::SameLine();
+	im::SetNextItemWidth(width);
+	im::DragInt("UV Height", &pp->uv[3]);
+
+	im::Spacing();
+	im::SetNextItemWidth(width);
+	im::DragInt("X", &pp->xy[0]);
+	im::SameLine();
+	im::SetNextItemWidth(width);
+	im::DragInt("Y", &pp->xy[1]);
+
+	im::Spacing();
+	float wh[2] = { pp->wh[0], pp->wh[1] };
+	im::DragFloat2("Scale", wh);
+	pp->wh[0] = wh[0];
+	pp->wh[1] = wh[1];
+
+	im::SetNextItemWidth(width * 3);
+	im::InputInt("Reference Page", &pp->texture);
+
+	im::SetNextItemWidth(width * 2);
+	im::InputInt("Shape", &pp->shapeIndex);
+	im::SameLine();
+	im::SetNextItemWidth(width * 2);
+	int color = pp->colorSlot;
+	im::InputInt("Palette Color", &color);
+	pp->colorSlot = color;
+
+}
 
 inline void IfDisplay(std::vector<Frame_IF> *ifList_, Frame_IF* copied)
 {

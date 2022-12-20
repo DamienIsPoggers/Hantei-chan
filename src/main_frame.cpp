@@ -31,9 +31,9 @@
 MainFrame::MainFrame(ContextGl *context_):
 context(context_),
 currState{},
-mainPane(&render, &framedata, currState),
-rightPane(&render, &framedata, currState),
-boxPane(&render, &framedata, currState),
+mainPane(&render, &framedata, currState, &parts),
+rightPane(&render, &framedata, currState, &parts),
+boxPane(&render, &framedata, currState, &parts),
 curPalette(0),
 x(0),y(150),
 parts(&cg),
@@ -87,6 +87,8 @@ void MainFrame::Draw()
 
 void MainFrame::DrawBack()
 {
+	
+
 	render.filter = smoothRender;
 	if(screenShot)
 		glClearColor(0, 0, 0, 0.f);
@@ -326,7 +328,7 @@ void MainFrame::HandleMouseDrag(int x_, int y_, bool dragRight, bool dragLeft)
 {
 	if(dragRight)
 	{
-		boxPane.BoxDrag(x_, y_);
+		//boxPane.BoxDrag(x_, y_);
 	}
 	else if(dragLeft)
 	{
@@ -337,7 +339,7 @@ void MainFrame::HandleMouseDrag(int x_, int y_, bool dragRight, bool dragLeft)
 
 void MainFrame::RightClick(int x_, int y_)
 {
-	boxPane.BoxStart((x_-x-clientRect.x/2)/render.scale, (y_-y-clientRect.y/2)/render.scale);
+	//boxPane.BoxStart((x_-x-clientRect.x/2)/render.scale, (y_-y-clientRect.y/2)/render.scale);
 }
 
 bool MainFrame::HandleKeys(uint64_t vkey)
@@ -462,6 +464,7 @@ void MainFrame::Menu(unsigned int errorPopupId)
 			if (ImGui::MenuItem("Load Pat..."))
 			{
 				std::string&& file = FileDialog(fileType::PAT);
+				framedata.initEmpty();
 				if (!file.empty())
 				{
 					if (!parts.Load(file.c_str()))
@@ -479,7 +482,7 @@ void MainFrame::Menu(unsigned int errorPopupId)
 					currentFilePath = FileDialog(fileType::PAT, true);
 				if(!currentFilePath.empty())
 				{
-					framedata.save(currentFilePath.c_str());
+					parts.Save(currentFilePath.c_str());
 				}
 			}
 
@@ -488,7 +491,7 @@ void MainFrame::Menu(unsigned int errorPopupId)
 				std::string &&file = FileDialog(fileType::PAT, true);
 				if(!file.empty())
 				{
-					framedata.save(file.c_str());
+					parts.Save(file.c_str());
 					currentFilePath = file;
 				}
 			}
@@ -593,23 +596,6 @@ void MainFrame::Menu(unsigned int errorPopupId)
 			if (ImGui::MenuItem("Shortcuts")) helpWindow.isVisible = !helpWindow.isVisible;
 			ImGui::EndMenu();
 		}
-		/*
-		if (ImGui::BeginMenu("Pat Editing"))
-		{
-			if (ImGui::MenuItem("Switch Editing Type"))
-			{
-				if (mainPane.isEditingPat)
-				{
-					mainPane.isEditingPat = false;
-				}
-				else {
-					mainPane.isEditingPat = true;
-				}
-			}
-			ImGui::Separator();
-			ImGui::EndMenu();
-		}
-		*/
 		ImGui::EndMenuBar();
 	}
 }

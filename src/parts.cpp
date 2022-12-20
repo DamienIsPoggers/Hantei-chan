@@ -8,6 +8,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+PartProperty newPr();
+
 struct DDS_PIXELFORMAT
 {
 	uint32_t    size;
@@ -99,7 +101,13 @@ unsigned int* Parts::VnLoad(unsigned int* data, const unsigned int* data_end, in
 		++data;
 
 		if (!memcmp(buf, "VNST", 4)) {
-			data += 8 * amount;
+			for (int i = 0; i < amount; i++)
+			{
+				std::string name;
+				name = (char*)data;
+				shapeNames.insert({ i,name });
+				data += 8;
+			}
 		}
 		else if (!memcmp(buf, "VEED", 4)) {
 			break;
@@ -140,6 +148,7 @@ bool Decrappress(unsigned char* cdata, unsigned char* outData, size_t csize, siz
 unsigned int* Parts::PgLoad(unsigned int* data, const unsigned int* data_end, int id)
 {
 	PartGfx tex{};
+	tex.pgstNum = id;
 	while (data < data_end) {
 		unsigned int* buf = data;
 		++data;
@@ -159,6 +168,7 @@ unsigned int* Parts::PgLoad(unsigned int* data, const unsigned int* data_end, in
 		}
 		else if (!memcmp(buf, "PGT2", 4)) { //UNI
 			unsigned int someSize = data[0]; // is size1 + 16?
+			tex.filesize = someSize - 16;
 			tex.w = data[1];
 			tex.h = data[2];
 			data += 3;
@@ -195,6 +205,7 @@ unsigned int* Parts::PgLoad(unsigned int* data, const unsigned int* data_end, in
 				data += 6;
 
 				unsigned char* cData = (unsigned char*)data;
+				tex.data = (char*)cData;
 				auto oData = new unsigned char[oSize];
 				bool result = Decrappress(cData, oData, cSize, oSize);
 				assert(result);
@@ -237,18 +248,22 @@ unsigned int* Parts::PpLoad(unsigned int* data, const unsigned int* data_end, in
 	while (data < data_end) {
 		unsigned int* buf = data;
 		++data;
+		/*
 		if (!memcmp(buf, "PPNM", 4)) {
 			pp.name = (char*)data;
 			//std::cout << id <<" PP: "<<(char*)data << "\n";
 			data += 0x20 / 4;
 		}
-		else if (!memcmp(buf, "PPNA", 4)) { //UNI
+		*/
+		if (!memcmp(buf, "PPNA", 4)) { //UNI
 		 //Non null terminated name. Sjis
 			unsigned char* cdata = (unsigned char*)data;
 			name.resize(*cdata);
 			memcpy(name.data(), (cdata + 1), *cdata);
 			//std::cout << id <<" PP: "<< name << "\n";
 			cdata += *cdata + 1; //Length
+			char nm = *name.c_str();
+			pp.name = &nm;
 			data = (unsigned int*)cdata;
 		}
 		else if (!memcmp(buf, "PPCC", 4)) {
@@ -269,7 +284,7 @@ unsigned int* Parts::PpLoad(unsigned int* data, const unsigned int* data_end, in
 			data += 2;
 		}
 		else if (!memcmp(buf, "PPTE", 4)) { //UNI
-		 //two shorts?
+			memcpy(pp.texRatio, data, sizeof(uint16_t)*2);
 			++data;
 		}
 		else if (!memcmp(buf, "PPPA", 4)) { //UNI
@@ -295,7 +310,7 @@ unsigned int* Parts::PpLoad(unsigned int* data, const unsigned int* data_end, in
 		}
 		else if (!memcmp(buf, "PPJP", 4)) {
 			//Some XY offset for when the part "grabs" the player
-			//Doesn't affect rendering so we don't care about it.
+			memcpy(pp.jump, data, sizeof(int) * 2);
 			data += 2;
 		}
 		else if (!memcmp(buf, "PPED", 4)) {
@@ -316,6 +331,7 @@ unsigned int* Parts::PpLoad(unsigned int* data, const unsigned int* data_end, in
 unsigned int* Parts::PrLoad(unsigned int* data, const unsigned int* data_end, int groupId, int propId)
 {
 	PartProperty pr{};
+	pr.objID = propId;
 	while (data < data_end) {
 		unsigned int* buf = data;
 		++data;
@@ -354,6 +370,9 @@ unsigned int* Parts::PrLoad(unsigned int* data, const unsigned int* data_end, in
 		else if (!memcmp(buf, "PRSP", 4)) {
 			//Add color. bgra
 			memcpy(pr.addColor, data, sizeof(char) * 4);
+			pr.addRgba[0] = pr.addColor[2] / 255;
+			pr.addRgba[1] = pr.addColor[1] / 255;
+			pr.addRgba[2] = pr.addColor[0] / 255;
 			++data;
 		}
 		else if (!memcmp(buf, "PRAN", 4)) {
@@ -376,6 +395,10 @@ unsigned int* Parts::PrLoad(unsigned int* data, const unsigned int* data_end, in
 		else if (!memcmp(buf, "PRCL", 4)) {
 			//Color key
 			memcpy(pr.bgra, data, sizeof(char) * 4);
+			pr.rgba[0] = pr.bgra[2] / 255;
+			pr.rgba[1] = pr.bgra[1] / 255;
+			pr.rgba[2] = pr.bgra[0] / 255;
+			pr.rgba[3] = pr.bgra[3] / 255;
 			++data;
 		}
 		else if (!memcmp(buf, "PRA3", 4)) { //UNI angle
@@ -404,17 +427,19 @@ unsigned int* Parts::P_Load(unsigned int* data, const unsigned int* data_end, in
 	while (data < data_end) {
 		unsigned int* buf = data;
 		++data;
+		/*
 		if (!memcmp(buf, "PANM", 4)) {
 			//Melty name
 			name = (char*)data;
 			data += 0x20 / 4;
-		}
-		else if (!memcmp(buf, "PANA", 4)) { //UNI
+		} */
+		if (!memcmp(buf, "PANA", 4)) { //UNI
 		 //Non null terminated name
 			unsigned char* cdata = (unsigned char*)data;
 			name.resize(cdata[0]); //Length at 0
 			memcpy(name.data(), cdata + 1, cdata[0]);
 			cdata += cdata[0] + 1;
+			groupNames.insert({id,name});
 			data = (unsigned int*)cdata;
 		}
 		else if (!memcmp(buf, "PRST", 4)) {
@@ -507,7 +532,9 @@ bool Parts::Load(const char* name)
 	cutOuts.clear();
 	gfxMeta.clear();
 	groups.clear();
+	groupNames.clear();
 	shapes.clear();
+	shapeNames.clear();
 	partVertices.Clear();
 	MainLoad(d + 1, d_end);
 	std::cout << std::endl;
@@ -725,6 +752,19 @@ bool Parts::Load(const char* name)
 	}
 
 	//Sort parts in group by priority;
+	reorderLayers();
+
+	partVertices.Load();
+	loaded = true;
+	return true;
+}
+
+void Parts::reloadTextures()
+{
+}
+
+void Parts::reorderLayers()
+{
 	for (auto& group : groups)
 	{
 		auto& v = group.second;
@@ -732,10 +772,6 @@ bool Parts::Load(const char* name)
 			return a.priority < b.priority;
 			});
 	}
-
-	partVertices.Load();
-	loaded = true;
-	return true;
 }
 
 void Parts::Draw(int pattern,
@@ -809,11 +845,89 @@ void Parts::DrawPart(int i)
 	}
 }
 
-Parts::PartGfx* Parts::GetTexture(unsigned int n)
+PartProperty* Parts::GetPr(const int sprite, const int layer)
+{
+	if (groups.count(sprite))
+	{
+		for (auto& part : groups[sprite])
+		{
+			if (part.objID == layer) return &part;
+		}
+	}
+	return nullptr;
+}
+
+CutOut* Parts::GetPP(const int particle)
+{
+	if (cutOuts.count(particle))
+	{
+		return &cutOuts[particle];
+	}
+	return nullptr;
+}
+
+PartGfx* Parts::GetTexture(unsigned int n)
 {
 	if (gfxMeta.count(n))
 	{
 		return &gfxMeta[n];
 	}
 	return nullptr;
+}
+
+void Parts::newSprite(int num)
+{
+	std::string nm = "";
+	groupNames.insert({ num, nm });
+
+	PartProperty pr = newPr();
+	pr.objID = 0;
+	groups.insert({ num, {} });
+	groups[num].push_back(pr);
+}
+
+void Parts::newLayer(int sprnum, int num)
+{
+	PartProperty pr = newPr();
+	pr.objID = num;
+	groups[sprnum].push_back(pr);
+}
+
+PartProperty newPr()
+{
+	PartProperty pr;
+	pr.addColor[0] = 0;
+	pr.addColor[1] = 0;
+	pr.addColor[2] = 0;
+	pr.addColor[3] = 0;
+	pr.addRgba[0] = 0;
+	pr.addRgba[1] = 0;
+	pr.addRgba[2] = 0;
+
+	pr.bgra[0] = 255;
+	pr.bgra[1] = 255;
+	pr.bgra[2] = 255;
+	pr.bgra[3] = 255;
+	pr.rgba[0] = 1;
+	pr.bgra[1] = 1;
+	pr.bgra[2] = 1;
+	pr.bgra[3] = 1;
+
+	pr.rotation[0] = 0;
+	pr.rotation[1] = 0;
+	pr.rotation[2] = 0;
+
+	pr.scaleX = 0;
+	pr.scaleY = 0;
+
+	pr.priority = 0;
+	pr.additive = false;
+	pr.filter = false;
+	pr.flip = false;
+	pr.ppId = -1;
+	pr.x = 0;
+	pr.y = 0;
+	pr.objID = 0;
+
+	return pr;
 }
