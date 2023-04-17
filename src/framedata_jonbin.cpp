@@ -10,7 +10,7 @@
 #define VAL(X) ((const char*)&X)
 #define PTR(X) ((const char*)X)
 
-void MainFrame::BuildJonb(float offsetX, float offsetY, std::string id, float scale, std::string output, std::string prefix, bool justPat, bool justFra)
+void MainFrame::BuildJonb(float offsetX, float offsetY, std::string id, float scale, std::string output, std::string prefix, bool justPat, bool justFra, bool onlyScaleChunks)
 {
 	if (justPat)
 	{
@@ -65,7 +65,7 @@ void MainFrame::BuildJonb(float offsetX, float offsetY, std::string id, float sc
 
 					buildChunks(file, framedata.get_sequence(i1));
 
-					buildBoxes(file, framedata.get_sequence(i1));
+					buildBoxes(file, framedata.get_sequence(i1), onlyScaleChunks);
 
 
 					file.close();
@@ -130,7 +130,7 @@ void MainFrame::BuildJonb(float offsetX, float offsetY, std::string id, float sc
 
 				buildChunks(file, framedata.get_sequence(i1));
 
-				buildBoxes(file, framedata.get_sequence(i1));
+				buildBoxes(file, framedata.get_sequence(i1), onlyScaleChunks);
 
 
 				file.close();
@@ -194,7 +194,7 @@ void MainFrame::BuildJonb(float offsetX, float offsetY, std::string id, float sc
 
 						buildChunks(file, framedata.get_sequence(i1));
 
-						buildBoxes(file, framedata.get_sequence(i1));
+						buildBoxes(file, framedata.get_sequence(i1), onlyScaleChunks);
 
 
 						file.close();
@@ -466,7 +466,7 @@ void MainFrame::buildChunks(std::ofstream& file, const Sequence* seq)
 	}
 }
 
-void MainFrame::buildBoxes(std::ofstream& file, const Sequence* seq)
+void MainFrame::buildBoxes(std::ofstream& file, const Sequence* seq, bool onlyChunks)
 {
 	uint64_t zero = 0;
 	uint32_t ID = 0;
@@ -479,10 +479,17 @@ void MainFrame::buildBoxes(std::ofstream& file, const Sequence* seq)
 			&& boxes[j].xy[2] == 0 && boxes[j].xy[3] == 0))
 		{
 			file.write(VAL(ID), 4);
-			float X = (boxes[j].xy[0] * (-1)) * jonbScaleFactor;
-			float Y = boxes[j].xy[1] * jonbScaleFactor;
-			float width = (boxes[j].xy[0] - boxes[j].xy[2]) * jonbScaleFactor;
-			float height = ((boxes[j].xy[1] - boxes[j].xy[3])*(-1)) * jonbScaleFactor;
+			float X = (boxes[j].xy[0] * (-1));
+			float Y = boxes[j].xy[1];
+			float width = (boxes[j].xy[0] - boxes[j].xy[2]);
+			float height = ((boxes[j].xy[1] - boxes[j].xy[3])*(-1));
+			if (!onlyChunks)
+			{
+				X *= jonbScaleFactor;
+				Y *= jonbScaleFactor;
+				width *= jonbScaleFactor;
+				height *= jonbScaleFactor;
+			}
 			file.write(VAL(X), 4);
 			file.write(VAL(Y), 4);
 			file.write(VAL(width), 4);
@@ -496,10 +503,17 @@ void MainFrame::buildBoxes(std::ofstream& file, const Sequence* seq)
 			&& boxes[j].xy[2] == 0 && boxes[j].xy[3] == 0))
 		{
 			file.write(VAL(ID), 4);
-			float X = (boxes[j].xy[0] * (-1)) * jonbScaleFactor;
-			float Y = boxes[j].xy[1] * jonbScaleFactor;
-			float width = (boxes[j].xy[0] - boxes[j].xy[2]) * jonbScaleFactor;
-			float height = ((boxes[j].xy[1] - boxes[j].xy[3]) * (-1)) * jonbScaleFactor;
+			float X = (boxes[j].xy[0] * (-1));
+			float Y = boxes[j].xy[1];
+			float width = (boxes[j].xy[0] - boxes[j].xy[2]);
+			float height = ((boxes[j].xy[1] - boxes[j].xy[3]) * (-1));
+			if (!onlyChunks)
+			{
+				X *= jonbScaleFactor;
+				Y *= jonbScaleFactor;
+				width *= jonbScaleFactor;
+				height *= jonbScaleFactor;
+			}
 			file.write(VAL(X), 4);
 			file.write(VAL(Y), 4);
 			file.write(VAL(width), 4);
@@ -515,8 +529,13 @@ void MainFrame::buildBoxes(std::ofstream& file, const Sequence* seq)
 				&& boxes[j].xy[2] == 0 && boxes[j].xy[3] == 0))
 			{
 				file.write(VAL(ID), 4);
-				float X = (boxes[j].xy[0] * (-1)) * jonbScaleFactor;
-				float Y = boxes[j].xy[1] * jonbScaleFactor;
+				float X = (boxes[j].xy[0] * (-1));
+				float Y = boxes[j].xy[1];
+				if (!onlyChunks)
+				{
+					X *= jonbScaleFactor;
+					Y *= jonbScaleFactor;
+				}
 				file.write(VAL(X), 4);
 				file.write(VAL(Y), 4);
 				file.write(VAL(zero), 8);
@@ -532,8 +551,13 @@ void MainFrame::buildBoxes(std::ofstream& file, const Sequence* seq)
 			if (ef[j].type == 14)
 			{
 				file.write(VAL(ID), 4);
-				float X = (ef[j].parameters[0] * (-1)) * jonbScaleFactor;
-				float Y = ef[j].parameters[1] * jonbScaleFactor;
+				float X = (ef[j].parameters[0] * (-1));
+				float Y = ef[j].parameters[1];
+				if (!onlyChunks)
+				{
+					X *= jonbScaleFactor;
+					Y *= jonbScaleFactor;
+				}
 				file.write(VAL(X), 4);
 				file.write(VAL(Y), 4);
 				file.write(VAL(zero), 8);
@@ -546,8 +570,13 @@ void MainFrame::buildBoxes(std::ofstream& file, const Sequence* seq)
 		&& boxes[18].xy[2] == 0 && boxes[18].xy[3] == 0))
 	{
 		file.write(VAL(ID), 4);
-		float X = (boxes[18].xy[0] * (-1)) * jonbScaleFactor;
-		float Y = boxes[18].xy[1] * jonbScaleFactor;
+		float X = (boxes[18].xy[0] * (-1));
+		float Y = boxes[18].xy[1];
+		if (!onlyChunks)
+		{
+			X *= jonbScaleFactor;
+			Y *= jonbScaleFactor;
+		}
 		file.write(VAL(X), 4);
 		file.write(VAL(Y), 4);
 		file.write(VAL(zero), 8);
@@ -557,8 +586,13 @@ void MainFrame::buildBoxes(std::ofstream& file, const Sequence* seq)
 		&& boxes[19].xy[2] == 0 && boxes[19].xy[3] == 0))
 	{
 		file.write(VAL(ID), 4);
-		float X = (boxes[19].xy[0] * (-1)) * jonbScaleFactor;
-		float Y = boxes[19].xy[1] * jonbScaleFactor;
+		float X = (boxes[19].xy[0] * (-1));
+		float Y = boxes[19].xy[1];
+		if (!onlyChunks)
+		{
+			X *= jonbScaleFactor;
+			Y *= jonbScaleFactor;
+		}
 		file.write(VAL(X), 4);
 		file.write(VAL(Y), 4);
 		file.write(VAL(zero), 8);
@@ -568,8 +602,13 @@ void MainFrame::buildBoxes(std::ofstream& file, const Sequence* seq)
 		&& boxes[20].xy[2] == 0 && boxes[20].xy[3] == 0))
 	{
 		file.write(VAL(ID), 4);
-		float X = (boxes[20].xy[0] * (-1)) * jonbScaleFactor;
-		float Y = boxes[20].xy[1] * jonbScaleFactor;
+		float X = (boxes[20].xy[0] * (-1));
+		float Y = boxes[20].xy[1];
+		if (!onlyChunks)
+		{
+			X *= jonbScaleFactor;
+			Y *= jonbScaleFactor;
+		}
 		file.write(VAL(X), 4);
 		file.write(VAL(Y), 4);
 		file.write(VAL(zero), 8);
@@ -579,8 +618,13 @@ void MainFrame::buildBoxes(std::ofstream& file, const Sequence* seq)
 		&& boxes[21].xy[2] == 0 && boxes[21].xy[3] == 0))
 	{
 		file.write(VAL(ID), 4);
-		float X = (boxes[21].xy[0] * (-1)) * jonbScaleFactor;
-		float Y = boxes[21].xy[1] * jonbScaleFactor;
+		float X = (boxes[21].xy[0] * (-1));
+		float Y = boxes[21].xy[1];
+		if (!onlyChunks)
+		{
+			X *= jonbScaleFactor;
+			Y *= jonbScaleFactor;
+		}
 		file.write(VAL(X), 4);
 		file.write(VAL(Y), 4);
 		file.write(VAL(zero), 8);

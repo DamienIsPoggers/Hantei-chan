@@ -676,6 +676,7 @@ void MainFrame::Menu(unsigned int errorPopupId)
 					}
 					ImGui::InputFloat("Scale Jonbins", &jonbScaleFactor);
 					//ImGui::InputText("Prefix for sprite names", &prefix);
+					ImGui::Checkbox("Only Scale the Sprites", &onlyScaleChunks);
 					ImGui::Checkbox("Convert Special boxes to Snap boxes", &specToSnap);
 					ImGui::InputFloat("X Offset for hip", &hipOffsetX);
 					ImGui::InputFloat("Y Offset for hip", &hipOffsetY);
@@ -687,7 +688,7 @@ void MainFrame::Menu(unsigned int errorPopupId)
 						if (!outputPath.empty() && !charID.empty() && cg.m_loaded)
 						{
 							hasFailed = false;
-							BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, false);
+							BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, false, onlyScaleChunks);
 						}
 						else {
 							hasFailed = true;
@@ -699,7 +700,7 @@ void MainFrame::Menu(unsigned int errorPopupId)
 						if (!outputPath.empty() && !charID.empty() && cg.m_loaded)
 						{
 							hasFailed = false;
-							BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, true, false);
+							BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, true, false, onlyScaleChunks);
 						}
 						else {
 							hasFailed = true;
@@ -711,7 +712,7 @@ void MainFrame::Menu(unsigned int errorPopupId)
 						if (!outputPath.empty() && !charID.empty() && cg.m_loaded)
 						{
 							hasFailed = false;
-							BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, true);
+							BuildJonb(hipOffsetX, hipOffsetY, charID, jonbScaleFactor, outputPath, prefix, false, true, onlyScaleChunks);
 						}
 						else {
 							hasFailed = true;
